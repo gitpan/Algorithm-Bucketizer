@@ -1,0 +1,8 @@
+Bucketizer.pm
+Changes
+MANIFEST
+Makefile.PL
+README
+Algorithm-Bucketizer-0.06.tar.gz
+t/1.t
+eg/sample.pl
