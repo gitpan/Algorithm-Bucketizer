@@ -1,5 +1,8 @@
 Revision history for Algorithm::Bucketizer.
 
+0.09  03/12/2003
+    * Corrected documents
+
 0.06  06/18/2002
     * Added test cases for random optimization
 

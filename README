@@ -1,5 +1,5 @@
 ######################################################################
-    Algorithm::Bucketizer 0.06
+    Algorithm::Bucketizer 0.09
 ######################################################################
 
 NAME
@@ -28,17 +28,17 @@ SYNOPSIS
       my $serial = $bucket->serial();
   
 DESCRIPTION
-    You have a number of mp3-Songs on your hard disc and want to copy them
-    to a number of CDs, maxing out the space available on each of them? You
-    want to distribute your picture collection into several folders, so each
-    of them doesn't exceed a certain size? `Algorithm::Bucketizer' comes to
-    the rescue.
+    So, you own a number of mp3-Songs on your hard disc and want to copy
+    them to a number of CDs, maxing out the space available on each of them?
+    You want to distribute your picture collection into several folders, so
+    each of them doesn't exceed a certain size? "Algorithm::Bucketizer"
+    comes to the rescue.
 
-    `Algorithm::Bucketizer' distributes items of a defined size into a
+    "Algorithm::Bucketizer" distributes items of a defined size into a
     number of dynamically created buckets, each of them capable of holding
     items of a defined total size.
 
-    By calling the `$bucketizer->add_item()' method with the item (can be a
+    By calling the "$bucketizer->add_item()" method with the item (can be a
     scalar or an object reference) and its size as parameters, you're adding
     items to the system. The bucketizer will determine if the item fits into
     one of the existing buckets and put it in there if possible. If none of
@@ -47,64 +47,62 @@ DESCRIPTION
     bucket and put the item in there.
 
     After adding all items to the system, the bucketizer lets you iterate
-    over all buckets with the `$bucketizer->items()' method and determine
+    over all buckets with the "$bucketizer->items()" method and determine
     what's in each of them.
 
   Algorithms
+    Currently, "Algorithm::Bucketizer" comes with two algorithms, "simple"
+    and "retry".
 
-    Currently, `Algorithm::Bucketizer' comes with two algorithms, `simple'
-    and `retry'.
-
-    In `simple' mode, the algorithm will just try to fit in your items in
+    In "simple" mode, the algorithm will just try to fit in your items in
     the order in which they're arriving. If an item fits into the current
     bucket, it's being dropped in, if not, the algorithm moves on to the
     next bucket. It never goes back to previous buckets, although a new item
-    might as well fit in there.
+    might as well fit in there. This mode might be useful if preserving the
+    original order of items is required.
 
-    In `retry' mode, the algorithm will try each existing bucket first,
+    In "retry" mode, the algorithm will try each existing bucket first,
     before opening a new one. If you have many items of various sizes,
-    `retry' allows you to fit them into less buckets than in `simple' mode.
+    "retry" allows you to fit them into less buckets than in "simple" mode.
 
-    The `new()' method chooses the algorithm:
+    The "new()" method chooses the algorithm:
 
         my $dumb = Algorithm::Bucketizer->new( algorithm => "simple" );
 
         my $smart = Algorithm::Bucketizer->new( algorithm => "retry" );
 
-    In addition to these inserting algorithms, check the section on
-    "Optimize" to optimize the distribution, minimizing the number of
-    required buckets.
+    In addition to these inserting algorithms, check "Optimize" to optimize
+    the distribution, minimizing the number of required buckets.
 
   Prefilling Buckets
-
     Sometimes you will have preexisting buckets, which you need to tell the
     algorithm about before it starts adding new items. The
-    `prefill_bucket()' method does exactly that, simply putting an item into
+    "prefill_bucket()" method does exactly that, simply putting an item into
     a specified bucket:
 
         $b->prefill_bucket($bucket_idx, $item, $itemsize);
 
-    `$bucket_idx' is the index of the bucket, starting from 0. Non-existing
+    $bucket_idx is the index of the bucket, starting from 0. Non-existing
     buckets are automatically created for you. Make sure you have a
     consecutive number of buckets at the end of the prefill.
 
   Optimize
-
     Once you've inserted all items, you might choose to optimize the
     distribution over the buckets, in order to *minimize* the number of
     required buckets to hold all the elements.
 
     Optimally distributing a number discrete-sized items into a number of
-    discrete-sized buckets, however, is a non-trivial task. It's known as
-    the "knapsack problem" and NP-complete.
+    discrete-sized buckets, however, is a non-trivial task. It's the
+    "bin-packing problem", related to the "knapsack problem", which are both
+    *NP-complete*.
 
-    `Algorithm::Bucketize' therefore provides different optimization
+    "Algorithm::Bucketize" therefore provides different optimization
     techniques to (stupidly) approximate an ideal solution, which can't be
     obtained otherwise (yet).
 
-    Currently, it implements `"random"' and `"brute_force"'.
+    Currently, it implements "random" and "brute_force".
 
-    `"random"' tries to randomly vary the distribution until a time or round
+    "random" tries to randomly vary the distribution until a time or round
     limit is reached.
 
             # Try randomly to improve distribution, 
@@ -117,38 +115,40 @@ DESCRIPTION
 
             # Try to improve distribution by brute_force trying
             # all possible combinations (watch out: can take forever)
-        $b->optimize(algorithm => "brute_force");
+        $b->optimize(algorithm => "brute_force",
+                     maxtime => ..., 
+                     maxrounds => ...,
+                    );
 
-    I'm currently evaluating more sophisticated methods from more
+    I'm currently evaluating more sophisticated methods suggested by more
     mathematically inclined people :).
 
 FUNCTIONS
     *
             my $b = Algorithm::Bucketizer->new(
-                [bucketsize => $size], 
-                [algorithm  => $algorithm] 
+                bucketsize => $size, 
+                algorithm  => $algorithm 
                );
 
-        Creates a new `Algorithm::Bucketizer' object and returns a reference
+        Creates a new "Algorithm::Bucketizer" object and returns a reference
         to it.
 
-        The `bucketsize' name-value pair is somewhat mandatory, because you
+        The "bucketsize" name-value pair is somewhat mandatory, because you
         want to set the size of your buckets, otherwise they will default to
         100, which isn't what you want in most cases.
 
-        `algorithm' can be left out, it defaults to `"simple"'. If you want
-        retry behaviour, specify `"retry"' (see the section on
-        "Algorithms").
+        "algorithm" can be left out, it defaults to "simple". If you want
+        retry behaviour, specify "retry" (see "Algorithms").
 
     *
             $b->add_item($item_name, $item_size);
 
         Adds an item with the specified name and size to the next available
         bucket, according to the chosen algorithm. If you want to place an
-        item in a specific bucket (e.g. in order to prefill buckets), use
-        `prefill_bucket()' instead, which is described below.
+        item into a specific bucket (e.g. in order to prefill buckets), use
+        "prefill_bucket()" instead, which is described below.
 
-        Returns 1 on sucess and `undef' if something goes badly wrong (e.g.
+        Returns 1 on sucess and "undef" if something goes badly wrong (e.g.
         the bucket size is smaller than the item, i.e. there's no way it's
         ever going to fit in *any* bucket).
 
@@ -156,7 +156,7 @@ FUNCTIONS
             my @buckets = $b->buckets();
 
         Return a list of buckets. The list contains elements of type
-        `Algorithm::Bucketizer::Bucket', which understand the following
+        "Algorithm::Bucketizer::Bucket", which understand the following
         methods:
 
         *
@@ -183,14 +183,15 @@ FUNCTIONS
 
     *
             $b->optimize(
-                [algorithm  => $algorithm],
-                [maxtime    => $seconds],
-                [maxrounds  => $number_of_rounds] 
+                algorithm  => $algorithm,
+                maxtime    => $seconds,
+                maxrounds  => $number_of_rounds 
                );
 
-        Optimize bucket distribution. Currently `"random"' and
-        `"brute_force"' are implemented. Both can be (`"random"' *must* be)
-        terminated by either the maximum number of seconds or iterations.
+        Optimize bucket distribution. Currently "random" and "brute_force"
+        are implemented. Both can be ("random" *must* be) terminated by
+        either the maximum number of seconds ("maxtime") or iterations
+        ("maxrounds").
 
 EXAMPLE
     We've got buckets which hold a weight of 100 each, and we've got 10

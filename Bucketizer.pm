@@ -8,7 +8,7 @@ use 5.006;
 use strict;
 use warnings;
 
-our $VERSION = '0.06';
+our $VERSION = '0.09';
 
 ##################################################
 sub new {
@@ -309,7 +309,7 @@ Algorithm::Bucketizer - Distribute sized items to buckets with limited size
   
 =head1 DESCRIPTION
 
-You have a number of mp3-Songs on your hard disc and want to copy them to 
+So, you own a number of mp3-Songs on your hard disc and want to copy them to 
 a number of CDs, maxing out the space available on each of them?
 You want to distribute your picture collection into several folders, 
 so each of them doesn't exceed a certain size? C<Algorithm::Bucketizer>
@@ -342,7 +342,8 @@ In C<simple> mode, the algorithm will just try to fit in your items
 in the order in which they're arriving. If an item fits into the current bucket,
 it's being dropped in, if not, the algorithm moves on to the next bucket. It
 never goes back to previous buckets, although a new item might as well 
-fit in there.
+fit in there. This mode might be useful if preserving the original order
+of items is required.
 
 In C<retry> mode, the algorithm will try each existing bucket first, 
 before opening
@@ -379,7 +380,8 @@ to hold all the elements.
 
 Optimally distributing a number discrete-sized items into a 
 number of discrete-sized buckets, however, is a non-trivial task. 
-It's known as the "knapsack problem" and NP-complete.
+It's the "bin-packing problem", related to the 
+"knapsack problem", which are both I<NP-complete>.
 
 C<Algorithm::Bucketize> therefore provides different optimization
 techniques to (stupidly) approximate an ideal solution, which can't 
@@ -400,9 +402,12 @@ or round limit is reached.
 
         # Try to improve distribution by brute_force trying
         # all possible combinations (watch out: can take forever)
-    $b->optimize(algorithm => "brute_force");
+    $b->optimize(algorithm => "brute_force",
+                 maxtime => ..., 
+                 maxrounds => ...,
+                );
 
-I'm currently evaluating more sophisticated methods from 
+I'm currently evaluating more sophisticated methods suggested by
 more mathematically inclined people :).
 
 =head1 FUNCTIONS
@@ -412,8 +417,8 @@ more mathematically inclined people :).
 =item *
 
     my $b = Algorithm::Bucketizer->new(
-        [bucketsize => $size], 
-        [algorithm  => $algorithm] 
+        bucketsize => $size, 
+        algorithm  => $algorithm 
        );
 
 Creates a new C<Algorithm::Bucketizer> object and returns a reference to it.
@@ -431,7 +436,7 @@ If you want retry behaviour, specify C<"retry"> (see L<"Algorithms">).
 
 Adds an item with the specified name and size to the next 
 available bucket, according
-to the chosen algorithm. If you want to place an item in a 
+to the chosen algorithm. If you want to place an item into a 
 specific bucket (e.g. in
 order to prefill buckets), use C<prefill_bucket()> instead, 
 which is described below.
@@ -481,14 +486,15 @@ Return the bucket serial number. That's the bucket index plus 1.
 =item *
 
     $b->optimize(
-        [algorithm  => $algorithm],
-        [maxtime    => $seconds],
-        [maxrounds  => $number_of_rounds] 
+        algorithm  => $algorithm,
+        maxtime    => $seconds,
+        maxrounds  => $number_of_rounds 
        );
 
 Optimize bucket distribution. Currently C<"random"> and C<"brute_force">
 are implemented. Both can be (C<"random"> I<must> be) terminated
-by either the maximum number of seconds or iterations.
+by either the maximum number of seconds (C<maxtime>) or 
+iterations (C<maxrounds>).
 
 =back
 

@@ -1,8 +1,8 @@
 Bucketizer.pm
 Changes
-MANIFEST
+MANIFEST			This list of files
+MANIFEST.SKIP
 Makefile.PL
 README
-Algorithm-Bucketizer-0.06.tar.gz
-t/1.t
 eg/sample.pl
+t/1.t
