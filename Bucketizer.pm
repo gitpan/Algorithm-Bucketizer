@@ -8,7 +8,7 @@ use 5.006;
 use strict;
 use warnings;
 
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 
 ##################################################
 sub new {
@@ -45,12 +45,12 @@ sub add_item {
 
         if($bucket->probe_item($item, $size)) {
             $bucket->add_item($item, $size);
-            return 1;
+            return $bucket;
         }
     }
 
         # It didn't fit anywhere. Create a new bucket.
-    my $bucket = Algorithm::Bucketize::Bucket->new(
+    my $bucket = Algorithm::Bucketizer::Bucket->new(
         maxsize => $self->{bucketsize},
         idx     => ++$self->{last_bucket_idx},
     );
@@ -58,7 +58,7 @@ sub add_item {
     if($bucket->probe_item($item, $size)) {
         push @{$self->{buckets}}, $bucket;
         $bucket->add_item($item, $size);
-        return 1;
+        return $bucket;
     }
 
     # It didn't even fit in a new bucket. Forget it.
@@ -82,7 +82,7 @@ sub prefill_bucket {
 
         # Create the bucket if it doesn't exist yet
     if(!exists $self->{buckets}->[$bucket_idx]) {
-        $bucket = Algorithm::Bucketize::Bucket->new(
+        $bucket = Algorithm::Bucketizer::Bucket->new(
             maxsize => $self->{bucketsize},
             idx     => $bucket_idx,
         );
@@ -90,7 +90,8 @@ sub prefill_bucket {
         $self->{buckets}->[$bucket_idx] = $bucket;
     }
 
-    return $bucket->add_item($item, $size);
+    $bucket->add_item($item, $size);
+    return $bucket;
 }
 
 ##################################################
@@ -189,7 +190,7 @@ sub shuffle {
 }
 
 ##################################################
-package Algorithm::Bucketize::Bucket;
+package Algorithm::Bucketizer::Bucket;
 ##################################################
 
 ##################################################
@@ -441,7 +442,8 @@ specific bucket (e.g. in
 order to prefill buckets), use C<prefill_bucket()> instead, 
 which is described below.
 
-Returns 1 on sucess and C<undef> if something goes badly 
+Returns the Algorithm::Bucketizer::Bucket object of the lucky bucket
+on sucess and C<undef> if something goes badly 
 wrong (e.g. the bucket size
 is smaller than the item, i.e. there's no way it's 
 ever going to fit in I<any> bucket).

@@ -1,5 +1,10 @@
 Revision history for Algorithm::Bucketizer.
 
+0.10  04/04/2003
+    * fixed Algorithm::Bucketize::Bucket to Algorithm::Bucketizer::Bucket
+    * Bucketizer's add_item method now returns the bucket object on
+      success
+
 0.09  03/12/2003
     * Corrected documents
 

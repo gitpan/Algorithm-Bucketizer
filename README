@@ -1,5 +1,5 @@
 ######################################################################
-    Algorithm::Bucketizer 0.09
+    Algorithm::Bucketizer 0.10
 ######################################################################
 
 NAME
@@ -148,9 +148,10 @@ FUNCTIONS
         item into a specific bucket (e.g. in order to prefill buckets), use
         "prefill_bucket()" instead, which is described below.
 
-        Returns 1 on sucess and "undef" if something goes badly wrong (e.g.
-        the bucket size is smaller than the item, i.e. there's no way it's
-        ever going to fit in *any* bucket).
+        Returns the Algorithm::Bucketizer::Bucket object of the lucky bucket
+        on sucess and "undef" if something goes badly wrong (e.g. the bucket
+        size is smaller than the item, i.e. there's no way it's ever going
+        to fit in *any* bucket).
 
     *
             my @buckets = $b->buckets();
